@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset='utf-8'>
+	<title>RServe Interface</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- Bootstrap -->
+	<link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet" media="screen">
+	
+	<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+	<!--[if lt IE 9]>
+		<script src="../../assets/js/html5shiv.js"></script>
+		<script src="../../assets/js/respond.min.js"></script>
+	<![endif]-->
+</head>
+<body>
+
+<div class="container">
+	<div class="page-header">
+		<h1>RServe Interface</h1>
+		<!-- <p class="lead">Merges SHIP-Datesets based on CSV Files - <b>Computation Heavy Operation!</b></p> -->
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<div class="input-group">
+				<input type="text" class="form-control" id="input_r" placeholder="rnorm(10)">
+				<span class="input-group-btn">
+					<button class="btn btn-default" id="btn_evaluate" type="button">Evaluate!</button>
+				</span>
+			</div><!-- /input-group -->
+		</div><!-- /.col-lg-6 -->
+	</div><!-- /.row -->
+	<br/>
+	<div class="row">
+		<div class="col-md-12">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h3 class="panel-title">R Output</h3>
+				</div>
+				<div class="panel-body" id="console">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="bower_components/jquery/jquery.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+var socket = io.connect('http://localhost:8082');
+socket.on('termEvaluated', function (data) {
+	console.log(data);
+	var result = '';
+	if (data.hasOwnProperty("value") && data.value.hasOwnProperty("value"))
+		for (element in data.value.value)
+			result = result + element + ": " + data.value.value[element] + "<br />";
+	$('#console').html(result);
+});
+socket.emit('startRServ');
+
+// Event for clicking Evaluate Button
+$('#btn_evaluate').click(function(){
+	var term = $('#input_r').val();
+	// Reset term
+	$('#input_r').val('');
+
+	if (term.toString() != '') {
+		// Connect to Node Server and emit Term
+		var socket = io.connect('http://localhost:8082');
+		socket.emit('evaluateTerm', { term: term.toString()});
+	}
+});
+</script>
+</body>
+</html>
