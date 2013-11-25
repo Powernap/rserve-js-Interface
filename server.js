@@ -19,32 +19,60 @@ app.configure(function () {
 
 server.listen(8082);
 console.log("Started listening on Port 8082");
+var rserveHandler = new RserveHandler();
 
 /**
 Helper Function to execture local command
 **/
-function execCommand(command) {
+function execCommand(command, onSuccessCallback, onErrorCallback) {
 	console.log("Executing command '" + command + "'");
 	exec(command,
 		function (error, stdout, stderr) {
-			console.log('stdout: ' + stdout);
-			console.log('stderr: ' + stderr);
+			//console.log('stdout: ' + stdout);
+			//console.log('stderr: ' + stderr);
 			if (error !== null) {
 				console.log('exec error: ' + error);
+				if (onErrorCallback != undefined)
+					onErrorCallback(error);
 			}
+			// Run Success Callback if specified
+			if (onSuccessCallback != undefined)
+				onSuccessCallback(stdout);
 	});
 }
 
 // Handle Client connection
+var clientConnectedCount = 0;
 io.sockets.on('connection', function (socket) {
-	socket.on('startRServ', function (){
-		execCommand('killall Rserve && cd "./lib/rserve-js/tests/" && R --slave --no-restore --vanilla --file="r_files/regular_start.R"');
-	});
+	
+	// Increase Client counter and start RServe if necessary
+	clientConnectedCount++;
+	console.log("Client connected, Number of connected Clients: " + clientConnectedCount);
+
+	if (clientConnectedCount > 0)
+		rserveHandler.serverIsRunning(function(isRunning){
+			if (!isRunning) {
+				console.log("Starting Rserve");
+				execCommand('cd "./lib/rserve-js/tests/" && R --slave --no-restore --vanilla --file="r_files/regular_start.R"');
+			}
+			else
+				console.log("RServe is already running");
+		});
+		// execCommand('killall Rserve && cd "./lib/rserve-js/tests/" && R --slave --no-restore --vanilla --file="r_files/regular_start.R"');
 
 	socket.on('evaluateTerm', function (data) {
 		evaluateTerm(data.term, function(result){
 			io.sockets.emit('termEvaluated', result);
 		});
+	});
+
+	socket.on('disconnect', function () {
+		clientConnectedCount--;
+		console.log("Client disconnected, Number of connected Clients: " + clientConnectedCount);
+		if (clientConnectedCount == 0){
+			console.log("No client connected anymore, closing RServe");
+			execCommand('killall Rserve');
+		}
 	});
 });
 
@@ -61,5 +89,17 @@ function evaluateTerm(term, callback)
 			console.log("Socket closed. (!?)");
 			console.log(msg);
 		}
+	});
+}
+
+// RServeHandler Class ------------------------
+function RserveHandler() {}
+
+RserveHandler.prototype.serverIsRunning = function (callback){
+	execCommand("pgrep Rserve", function(result){
+		if (result == "")
+			callback(false);
+		else
+			callback(true);
 	});
 }

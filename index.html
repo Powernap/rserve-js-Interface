@@ -48,6 +48,9 @@
 <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
+
+// SOCKET.IO Handling -----------------------------------
+
 var socket = io.connect('http://localhost:8082');
 socket.on('termEvaluated', function (data) {
 	console.log(data);
@@ -57,7 +60,7 @@ socket.on('termEvaluated', function (data) {
 			result = result + element + ": " + data.value.value[element] + "<br />";
 	$('#console').html(result);
 });
-socket.emit('startRServ');
+// SOCKET.IO Handling -----------------------------------
 
 // Event for clicking Evaluate Button
 $('#btn_evaluate').click(function(){
