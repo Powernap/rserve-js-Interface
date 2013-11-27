@@ -9,7 +9,7 @@ var app = express();
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
 
-var rServInterface = new RserveInterface();
+var rServeInterface = new RserveInterface();
 
 // Configure the server to use static content
 app.configure(function () {
@@ -30,18 +30,17 @@ io.sockets.on('connection', function (socket) {
 	clientConnectedCount++;
 	console.log("Client connected, Number of connected Clients: " + clientConnectedCount);
 
-	if (clientConnectedCount > 0)
-		rServInterface.serverIsRunning(function(isRunning){
-			if (!isRunning) {
-				console.log("Starting Rserve");
-				rServInterface.startServer();
-			}
-			else
-				console.log("RServe is already running");
+	if (clientConnectedCount > 0) {
+		rServeInterface.connectToRServeAsync(function(){
+			// DEBUG
+			// rServeInterface.evaluateTermAsync("setwd('~/Sites/d3-playground/interactionGraph')", function(){
+			// 	rServeInterface.evaluateTermAsync("csv <- read.csv('SHIP_2012_82_D_S2_20121129.csv')");
+			// });
 		});
+	}
 
 	socket.on('evaluateTerm', function (data) {
-		rServInterface.evaluateTerm(data.term, function(result){
+		rServeInterface.evaluateTermAsync(data.term, function(result){
 			io.sockets.emit('termEvaluated', result);
 		});
 	});
@@ -51,7 +50,20 @@ io.sockets.on('connection', function (socket) {
 		console.log("Client disconnected, Number of connected Clients: " + clientConnectedCount);
 		if (clientConnectedCount == 0){
 			console.log("No client connected anymore, closing RServe");
-			rServInterface.stopServer();
+			rServeInterface.stopServerAsync();
 		}
 	});
 });
+
+// Helper Functions
+/*
+ * Override Log Function to include Timestamp
+ */
+console.logCopy = console.log.bind(console);
+console.log = function(data) {
+	var currentDate = new Date();
+	var display = "[" + currentDate.getHours() + ":" + currentDate.getMinutes() + ":" + currentDate.getSeconds() + "." + currentDate.getMilliseconds() + "]";
+	this.logCopy(display, data);
+	// var currentDate = '[' + new Date().toUTCString() + '] ';
+	// this.logCopy(currentDate, data);
+};

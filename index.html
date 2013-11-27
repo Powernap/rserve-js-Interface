@@ -51,10 +51,11 @@
 <script>
 
 // SOCKET.IO Handling -----------------------------------
-
 var socket = io.connect('http://localhost:8082');
+
 socket.on('termEvaluated', function (data) {
-	console.log(data);
+	//console.log("Term evaluated!");
+	//console.log(data);
 	var result = '';
 	if (data.hasOwnProperty("value") && data.value.hasOwnProperty("value"))
 		for (element in data.value.value)
@@ -71,7 +72,7 @@ $('#btn_evaluate').click(function(){
 
 	if (term.toString() != '') {
 		// Connect to Node Server and emit Term
-		var socket = io.connect('http://localhost:8082');
+		//var socket = io.connect('http://localhost:8082');
 		socket.emit('evaluateTerm', { term: term.toString()});
 	}
 });
