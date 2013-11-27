@@ -1,5 +1,5 @@
 {
-  "name": "rserve-js Interface",
+  "name": "rserve-js-Interface",
   "version": "0.0.1",
   "description": "",
   "main": "server.js",
@@ -14,7 +14,7 @@
   "author": "Paul Klemm",
   "license": "Beerware",
   "dependencies": {
-		"socket.io": ">= 0.1.0",
-		"express": "3.x"
-	}
+    "socket.io": ">= 0.1.0",
+    "express": "3.x"
+  }
 }
