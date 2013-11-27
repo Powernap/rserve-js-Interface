@@ -4,10 +4,11 @@ var RserveInterface = (function() {
 	var Rserve = require('../lib/rserve-js/main.js');
 
 	var localConnection = undefined;
+	var _pathToRServJS = undefined
 
 	// Constructor
-	var RserveInterface = function(options) {
-		
+	var RserveInterface = function(pathToRServJS) {
+		_pathToRServJS = pathToRServJS;
 	};
 	
 	/**
@@ -107,7 +108,8 @@ var RserveInterface = (function() {
 	function startServerAsync(callback){
 		console.log("Starting RServe");
 		// Launch the Service
-		execCommandAsync('cd "./lib/rserve-js/tests/" && R --slave --no-restore --vanilla --file="r_files/regular_start.R"');
+		//execCommandAsync('cd "./lib/rserve-js/tests/" && R --slave --no-restore --vanilla --file="r_files/regular_start.R"');
+		execCommandAsync('cd "' + _pathToRServJS + '/tests/" && R --slave --no-restore --vanilla --file="r_files/regular_start.R"');
 		// Adjust these variables to adjust how long the process waits to find RServ
 		var maximumWaitingTime = 1000;
 		var attemptInterval = 100;

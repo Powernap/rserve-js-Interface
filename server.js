@@ -9,7 +9,7 @@ var app = express();
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
 
-var rServeInterface = new RserveInterface();
+var rServeInterface = new RserveInterface("./lib/rserve-js");
 
 // Configure the server to use static content
 app.configure(function () {
