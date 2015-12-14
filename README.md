@@ -1,4 +1,4 @@
-![](http://cl.ly/image/4515302S2a1Y/RServe%20Interface.png "Image")
+*This repository is not maintained anymore. I recommend using [OpenCPU](https://www.opencpu.org/) to use `R` with `Javascript`*
 
 # This is a Proof of Concept Project
 This is a proof of concept project, not all RServe Functions are accessible.
